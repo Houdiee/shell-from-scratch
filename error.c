@@ -19,3 +19,7 @@ void exit_on_exec_error(char *command) {
     exit(EXIT_FAILURE);
   }
 }
+
+void print_error(char *command, char *error_message) {
+  fprintf(stderr, "%s: %s", command, error_message);
+}
