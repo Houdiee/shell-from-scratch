@@ -9,15 +9,16 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+// TODO
+// 1. add support for all errors
+// 2. add builtin commands, like cd
+// 3. improve the prompt instead of just '$' sign
+
 int main(int argc, char *argv[]) {
   while (true) {
     printf("$ ");
 
     char *user_input = get_user_input();
-    if (user_input == NULL) {
-      return 1;
-    }
-
     char **args = tokenize_string(user_input);
 
     if (args[0] != NULL && exec_built_in_commands(args)) {
