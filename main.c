@@ -1,4 +1,5 @@
 #include "sys/types.h"
+#include "sys/wait.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,26 +72,34 @@ char **tokenize_string(char *string) {
 }
 
 int main(int argc, char *argv[]) {
-  char *user_input = get_user_input();
-  if (user_input == NULL) {
-    return 1;
+  while (true) {
+    printf(">");
+
+    char *user_input = get_user_input();
+    if (user_input == NULL) {
+      return 1;
+    }
+
+    char **args = tokenize_string(user_input);
+
+    pid_t pid = fork();
+    int status;
+
+    if (pid == -1) {
+      perror("failed to fork process");
+      exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+      const int exec_result = execvp(args[0], args);
+      if (exec_result == -1) {
+        exit(EXIT_FAILURE);
+      }
+    } else {
+      waitpid(pid, &status, WUNTRACED);
+    }
+
+    free(args);
+    free(user_input);
   }
-
-  char **args = tokenize_string(user_input);
-  execvp(args[0], args);
-
-  for (int i = 0; args[i] != NULL; i++) {
-    printf("%s", args[i]);
-  }
-
-  pid_t pid = fork();
-  if (pid == -1) {
-    perror("failed to fork process");
-    exit(EXIT_FAILURE);
-  }
-
-  free(args);
-  free(user_input);
 
   return 0;
 }
