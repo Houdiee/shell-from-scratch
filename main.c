@@ -1,3 +1,4 @@
+#include "errno.h"
 #include "sys/types.h"
 #include "sys/wait.h"
 #include <stdbool.h>
@@ -71,9 +72,35 @@ char **tokenize_string(char *string) {
   return tokens;
 }
 
+void exit_on_exec_error(char *command) {
+  switch (errno) {
+  case EACCES:
+    fprintf(stderr, "%s: permission denied\n", command);
+    exit(126);
+    break;
+
+  case ENOENT:
+    fprintf(stderr, "%s: command not found\n", command);
+    exit(127);
+    break;
+
+  default:
+    perror(command);
+    exit(EXIT_FAILURE);
+  }
+}
+
+void exec_built_in_commands(char **args) {
+  const char *command = args[0];
+
+  if (!strcmp(command, "exit")) {
+    exit(EXIT_SUCCESS);
+  }
+}
+
 int main(int argc, char *argv[]) {
   while (true) {
-    printf(">");
+    printf("$ ");
 
     char *user_input = get_user_input();
     if (user_input == NULL) {
@@ -82,16 +109,21 @@ int main(int argc, char *argv[]) {
 
     char **args = tokenize_string(user_input);
 
+    if (args[0] != NULL) {
+      exec_built_in_commands(args);
+      free(args);
+      free(user_input);
+    }
+
     pid_t pid = fork();
     int status;
-
     if (pid == -1) {
       perror("failed to fork process");
       exit(EXIT_FAILURE);
     } else if (pid == 0) {
       const int exec_result = execvp(args[0], args);
       if (exec_result == -1) {
-        exit(EXIT_FAILURE);
+        exit_on_exec_error(args[0]);
       }
     } else {
       waitpid(pid, &status, WUNTRACED);
