@@ -75,18 +75,22 @@ int main(int argc, char *argv[]) {
   if (user_input == NULL) {
     return 1;
   }
-  printf("%s", user_input);
+
+  char **args = tokenize_string(user_input);
+  execvp(args[0], args);
+
+  for (int i = 0; args[i] != NULL; i++) {
+    printf("%s", args[i]);
+  }
 
   pid_t pid = fork();
   if (pid == -1) {
-    perror("failed to fork child process");
-    return 1;
+    perror("failed to fork process");
+    exit(EXIT_FAILURE);
   }
 
-  const char *args = strtok(user_input, " ");
-
-  execlp(args, args, '\0');
-
+  free(args);
   free(user_input);
+
   return 0;
 }
