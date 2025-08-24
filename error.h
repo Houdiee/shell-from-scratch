@@ -2,5 +2,6 @@
 #define ERROR_H
 
 void exit_on_exec_error(char *command);
+void print_error(char *command, char *error_message);
 
 #endif

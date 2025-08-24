@@ -9,15 +9,13 @@ void print_error(char *command, char *error_message) {
 }
 
 void exit_on_exec_error(char *command) {
-  int errsv = errno;
-
-  switch (errsv) {
+  switch (errno) {
   case ENOENT:
     print_error(command, "Command not found");
     exit(127);
 
   default:
-    print_error(command, strerror(errsv));
+    print_error(command, strerror(errno));
     exit(EXIT_FAILURE);
   }
 }

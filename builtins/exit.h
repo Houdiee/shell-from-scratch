@@ -1,6 +1,6 @@
 #ifndef EXIT_H
 #define EXIT_H
 
-int exit_with_status(char **args);
+void exit_with_status(char **args);
 
 #endif

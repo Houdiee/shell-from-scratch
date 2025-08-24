@@ -7,6 +7,7 @@ bool exec_built_in_commands(char **args) {
 
   if (!strcmp(command, "exit")) {
     exit_with_status(args);
+    return true;
   }
 
   return false;
