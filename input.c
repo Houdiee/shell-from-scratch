@@ -1,8 +1,8 @@
 #include "input.h"
 #include "builtin.h"
-#include "cache.h"
 #include "colors.h"
 #include "terminal.h"
+#include "util.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +44,10 @@ void handle_highlighting(const char *buffer) {
 }
 
 char *get_user_input() {
-  const char *PROMPT = "$ ";
+  char *cwd = get_current_directory();
+  char PROMPT[1024];
+  sprintf(PROMPT, "%s\n$ ", cwd);
+
   enable_raw_mode();
 
   int current_buf_size = INITIAL_BUFF_SIZE;
@@ -58,7 +61,7 @@ char *get_user_input() {
   buffer[i] = '\0';
 
   while (true) {
-    printf("\x1b[2K\r%s", PROMPT);
+    printf("\x1b[2K\r%s", PROMPT); // TODO FIX THIS AND REMOVE $ SIGN
     handle_highlighting(buffer);
     fflush(stdout);
 

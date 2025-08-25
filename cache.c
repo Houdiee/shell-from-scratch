@@ -10,10 +10,6 @@
 
 string_cache executable_cache;
 
-bool is_executable_in_path(const char *command) {
-  return is_in_cache(&executable_cache, command);
-}
-
 void init_cache(string_cache *cache) {
   cache->count = 0;
   cache->capacity = 128;

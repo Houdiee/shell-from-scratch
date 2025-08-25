@@ -11,8 +11,7 @@
 #include <unistd.h>
 
 // TODO
-// 1. add syntax higlighting for executable command
-// 3. improve the prompt instead of just '$' sign
+// 1. add tab completion
 
 const bool DOUBLE_LINE = true;
 

@@ -15,6 +15,5 @@ void init_cache(string_cache *cache);
 void add_to_cache(string_cache *cache, const char *item);
 bool is_in_cache(string_cache *cache, const char *item);
 void populate_executable_cache();
-bool is_executable_in_path(const char *command);
 
 #endif
