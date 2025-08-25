@@ -11,7 +11,6 @@
 
 // TODO
 // 1. add syntax higlighting for executable command
-// 2. add builtin commands, like cd
 // 3. improve the prompt instead of just '$' sign
 
 int main(int argc, char *argv[]) {
