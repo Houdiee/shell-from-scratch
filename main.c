@@ -14,6 +14,8 @@
 // 1. add syntax higlighting for executable command
 // 3. improve the prompt instead of just '$' sign
 
+const bool DOUBLE_LINE = true;
+
 int main(int argc, char *argv[]) {
   populate_executable_cache();
   while (true) {
@@ -36,6 +38,10 @@ int main(int argc, char *argv[]) {
       } else {
         waitpid(pid, &status, WUNTRACED);
       }
+    }
+
+    if (DOUBLE_LINE) {
+      printf("\n");
     }
 
     free(args);
