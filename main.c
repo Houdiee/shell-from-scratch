@@ -15,8 +15,7 @@
 
 int main(int argc, char *argv[]) {
   while (true) {
-    printf("$ ");
-
+    fflush(stdout);
     char *user_input = get_user_input();
     char **args = tokenize_string(user_input);
 

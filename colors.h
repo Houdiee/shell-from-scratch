@@ -32,4 +32,7 @@
 #define BG_CYAN_COLOR ESC "46m"
 #define BG_WHITE_COLOR ESC "47m"
 
+#define BOLD_GREEN ESC "1;32m"
+#define BOLD_RED ESC "1;31m"
+
 #endif

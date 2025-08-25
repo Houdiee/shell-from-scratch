@@ -1,4 +1,6 @@
 #include "input.h"
+#include "colors.h"
+#include "terminal.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +11,16 @@ const int INITIAL_BUFF_SIZE = 4096;
 const int INITIAL_MAX_ARGS_COUNT = 128;
 const int GROWTH_FACTOR = 2;
 
+bool is_built_in(const char *command) {
+  return strcmp(command, "exit") == 0 || strcmp(command, "cd") == 0;
+}
+
 char *get_user_input() {
+  const char *PROMPT = "$ ";
+  printf("%s", PROMPT);
+  fflush(stdout);
+  enable_raw_mode();
+
   int current_buf_size = INITIAL_BUFF_SIZE;
   char *buffer = malloc(sizeof(char) * current_buf_size);
   if (buffer == NULL) {
@@ -36,8 +47,27 @@ char *get_user_input() {
 
     *(buffer + i) = ch;
     i++;
+    buffer[i] = '\0';
+
+    char *temp_buffer = malloc(current_buf_size);
+    if (temp_buffer == NULL) {
+      perror("failed to allocate memory for temp buffer");
+      exit(EXIT_FAILURE);
+    }
+    strncpy(temp_buffer, buffer, current_buf_size);
+    char *first_word = strtok(temp_buffer, " ");
+
+    if (first_word != NULL && is_built_in(first_word)) {
+      int first_word_len = strlen(first_word);
+      printf("\r%s%s%.*s%s%s", PROMPT, BOLD_GREEN, first_word_len, buffer,
+             RESET, buffer + first_word_len);
+    } else {
+      printf("\r%s%s%s", PROMPT, RESET, buffer);
+    }
+    free(temp_buffer);
   }
-  buffer[i] = '\0';
+  disable_raw_mode();
+  printf("\n");
 
   return buffer;
 }
