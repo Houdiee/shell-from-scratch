@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const int EXIT_MAX_ARGS_LEN = 2;
+const int EXIT_MAX_ARGS_LEN = 1;
 
 void exit_with_status(char **args) {
   char *command = args[0];
@@ -15,12 +15,15 @@ void exit_with_status(char **args) {
     arg_count++;
   }
 
-  if (arg_count - 1 != EXIT_MAX_ARGS_LEN) {
-    if (!args_is_expected_len(args, EXIT_MAX_ARGS_LEN)) {
-      print_error(command, strerror(errno));
-      return;
-    };
+  if (args[1] == NULL) {
+    exit(EXIT_SUCCESS);
+    return;
   }
+
+  if (!args_is_expected_len(args, EXIT_MAX_ARGS_LEN)) {
+    print_error(command, strerror(errno));
+    return;
+  };
 
   char *status_code_str = args[1];
   if (!arg_is_valid_number(status_code_str)) {

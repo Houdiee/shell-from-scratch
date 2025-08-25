@@ -11,8 +11,13 @@ bool args_is_expected_len(char **args, int expected_len) {
     arg_count++;
   }
 
-  if (arg_count - 1 != expected_len) {
-    errno = (arg_count - 1 < expected_len) ? EINVAL : E2BIG;
+  if (arg_count - 1 > expected_len) {
+    errno = E2BIG;
+    return false;
+  }
+
+  if (arg_count - 1 < expected_len) {
+    errno = EINVAL;
     return false;
   }
 
