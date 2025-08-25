@@ -3,6 +3,7 @@
 #include "colors.h"
 #include "terminal.h"
 #include "util.h"
+#include <libgen.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,8 +46,10 @@ void handle_highlighting(const char *buffer) {
 
 char *get_user_input() {
   char *cwd = get_current_directory();
-  char PROMPT[1024];
-  sprintf(PROMPT, "%s\n$ ", cwd);
+  char prompt[1024];
+  sprintf(prompt, "(%s)> ", basename(cwd));
+  printf("%s", prompt);
+  fflush(stdout);
 
   enable_raw_mode();
 
@@ -59,23 +62,20 @@ char *get_user_input() {
 
   int i = 0;
   buffer[i] = '\0';
+  int prev_buffer_len = 0;
 
   while (true) {
-    printf("\x1b[2K\r%s", PROMPT); // TODO FIX THIS AND REMOVE $ SIGN
-    handle_highlighting(buffer);
-    fflush(stdout);
-
     int ch = getchar();
+    prev_buffer_len = strlen(buffer);
 
-    if (ch == 127 || ch == 8) { // Backspace
+    if (ch == 127 || ch == 8) {
       if (i > 0) {
         i--;
         buffer[i] = '\0';
       }
     } else if (ch == EOF || ch == '\n') {
       break;
-    } else if (ch >= 32 && ch <= 126) { // Printable characters
-      // resize buffer if needed
+    } else if (ch >= 32 && ch <= 126) {
       if (i >= current_buf_size - 1) {
         current_buf_size *= GROWTH_FACTOR;
         buffer = realloc(buffer, current_buf_size);
@@ -88,6 +88,13 @@ char *get_user_input() {
       i++;
       buffer[i] = '\0';
     }
+
+    for (int k = 0; k < prev_buffer_len; k++) {
+      printf("\b \b");
+    }
+
+    handle_highlighting(buffer);
+    fflush(stdout);
   }
   disable_raw_mode();
   printf("\n");
