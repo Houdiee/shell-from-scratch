@@ -10,7 +10,6 @@
 #include <unistd.h>
 
 // TODO
-// 1. add syntax higlighting for executable command
 // 3. improve the prompt instead of just '$' sign
 
 int main(int argc, char *argv[]) {
