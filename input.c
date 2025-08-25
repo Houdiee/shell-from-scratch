@@ -7,10 +7,75 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 const int INITIAL_BUFF_SIZE = 4096;
 const int INITIAL_MAX_ARGS_COUNT = 128;
 const int GROWTH_FACTOR = 2;
+
+static bool is_executable_in_path(const char *command) {
+    if (strchr(command, '/') != NULL) {
+        struct stat st;
+        return stat(command, &st) == 0 && (st.st_mode & S_IXUSR);
+    }
+
+    char *path = getenv("PATH");
+    if (path == NULL) {
+        return false;
+    }
+
+    char *path_copy = strdup(path);
+    if (path_copy == NULL) {
+        return false;
+    }
+
+    char *dir = strtok(path_copy, ":");
+    while (dir != NULL) {
+        char executable_path[1024];
+        snprintf(executable_path, sizeof(executable_path), "%s/%s", dir, command);
+        
+        struct stat st;
+        if (stat(executable_path, &st) == 0 && (st.st_mode & S_IXUSR)) {
+            free(path_copy);
+            return true;
+        }
+
+        dir = strtok(NULL, ":");
+    }
+
+    free(path_copy);
+    return false;
+}
+
+void handle_highlighting(const char *buffer) {
+    const char *PROMPT = "$ ";
+    char *space = strchr(buffer, ' ');
+    int first_word_len;
+
+    if (space != NULL) {
+        first_word_len = space - buffer;
+    } else {
+        first_word_len = strlen(buffer);
+    }
+
+    char* first_word = malloc(first_word_len + 1);
+    if (first_word == NULL) {
+        printf("\r%s%s%s", PROMPT, RESET, buffer);
+        return;
+    }
+
+    strncpy(first_word, buffer, first_word_len);
+    first_word[first_word_len] = '\0';
+
+    if (is_built_in(first_word) || is_executable_in_path(first_word)) {
+        printf("\r%s%s%.*s%s%s", PROMPT, BOLD_GREEN, first_word_len, buffer, RESET, buffer + first_word_len);
+    } else {
+        printf("\r%s%s%s", PROMPT, RESET, buffer);
+    }
+
+    free(first_word);
+}
+
 
 char *get_user_input() {
   const char *PROMPT = "$ ";
@@ -46,22 +111,7 @@ char *get_user_input() {
     i++;
     buffer[i] = '\0';
 
-    char *temp_buffer = malloc(current_buf_size);
-    if (temp_buffer == NULL) {
-      perror("failed to allocate memory for temp buffer");
-      exit(EXIT_FAILURE);
-    }
-    strncpy(temp_buffer, buffer, current_buf_size);
-    char *first_word = strtok(temp_buffer, " ");
-
-    if (first_word != NULL && is_built_in(first_word)) {
-      int first_word_len = strlen(first_word);
-      printf("\r%s%s%.*s%s%s", PROMPT, BOLD_GREEN, first_word_len, buffer,
-             RESET, buffer + first_word_len);
-    } else {
-      printf("\r%s%s%s", PROMPT, RESET, buffer);
-    }
-    free(temp_buffer);
+    handle_highlighting(buffer);
   }
   disable_raw_mode();
   printf("\n");

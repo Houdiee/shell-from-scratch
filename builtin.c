@@ -21,6 +21,7 @@ bool exec_built_in_commands(char **args) {
   for (int i = 0; built_ins[i].name != NULL; i++) {
     if (strcmp(command, built_ins[i].name) == 0) {
       built_ins[i].func(args);
+      return true;
     }
   }
 
