@@ -1,7 +1,14 @@
+#include "builtin.h"
 #include "builtins/cd.h"
 #include "builtins/exit.h"
+#include <dirent.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 typedef struct {
   const char *name;

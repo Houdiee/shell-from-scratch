@@ -1,4 +1,5 @@
 #include "builtin.h"
+#include "cache.h"
 #include "error.h"
 #include "input.h"
 #include <stdbool.h>
@@ -10,9 +11,11 @@
 #include <unistd.h>
 
 // TODO
+// 1. add syntax higlighting for executable command
 // 3. improve the prompt instead of just '$' sign
 
 int main(int argc, char *argv[]) {
+  populate_executable_cache();
   while (true) {
     fflush(stdout);
     char *user_input = get_user_input();

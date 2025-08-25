@@ -1,8 +1,8 @@
 #include "input.h"
 #include "builtin.h"
+#include "cache.h"
 #include "colors.h"
 #include "terminal.h"
-#include "util.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +15,6 @@ const int INITIAL_MAX_ARGS_COUNT = 128;
 const int GROWTH_FACTOR = 2;
 
 void handle_highlighting(const char *buffer) {
-  const char *PROMPT = "$ ";
   char *space = strchr(buffer, ' ');
   int first_word_len;
 
@@ -27,7 +26,7 @@ void handle_highlighting(const char *buffer) {
 
   char *first_word = malloc(first_word_len + 1);
   if (first_word == NULL) {
-    printf("\r%s%s%s", PROMPT, RESET, buffer);
+    printf("%s", buffer);
     return;
   }
 
@@ -35,10 +34,10 @@ void handle_highlighting(const char *buffer) {
   first_word[first_word_len] = '\0';
 
   if (is_built_in(first_word) || is_executable_in_path(first_word)) {
-    printf("\r%s%s%.*s%s%s", PROMPT, BOLD_GREEN, first_word_len, buffer, RESET,
+    printf("%s%.*s%s%s", BOLD_GREEN, first_word_len, buffer, RESET,
            buffer + first_word_len);
   } else {
-    printf("\r%s%s%s", PROMPT, RESET, buffer);
+    printf("%s", buffer);
   }
 
   free(first_word);
@@ -46,8 +45,6 @@ void handle_highlighting(const char *buffer) {
 
 char *get_user_input() {
   const char *PROMPT = "$ ";
-  printf("%s", PROMPT);
-  fflush(stdout);
   enable_raw_mode();
 
   int current_buf_size = INITIAL_BUFF_SIZE;
@@ -58,27 +55,36 @@ char *get_user_input() {
   }
 
   int i = 0;
+  buffer[i] = '\0';
+
   while (true) {
+    printf("\x1b[2K\r%s", PROMPT);
+    handle_highlighting(buffer);
+    fflush(stdout);
+
     int ch = getchar();
 
-    if (ch == EOF || ch == '\n') {
-      break;
-    }
-
-    if (i >= current_buf_size) {
-      current_buf_size *= GROWTH_FACTOR;
-      buffer = realloc(buffer, current_buf_size);
-      if (buffer == NULL) {
-        perror("failed to reallocate memory for user input buffer");
-        exit(EXIT_FAILURE);
+    if (ch == 127 || ch == 8) { // Backspace
+      if (i > 0) {
+        i--;
+        buffer[i] = '\0';
       }
+    } else if (ch == EOF || ch == '\n') {
+      break;
+    } else if (ch >= 32 && ch <= 126) { // Printable characters
+      // resize buffer if needed
+      if (i >= current_buf_size - 1) {
+        current_buf_size *= GROWTH_FACTOR;
+        buffer = realloc(buffer, current_buf_size);
+        if (buffer == NULL) {
+          perror("failed to reallocate memory for user input buffer");
+          exit(EXIT_FAILURE);
+        }
+      }
+      *(buffer + i) = ch;
+      i++;
+      buffer[i] = '\0';
     }
-
-    *(buffer + i) = ch;
-    i++;
-    buffer[i] = '\0';
-
-    handle_highlighting(buffer);
   }
   disable_raw_mode();
   printf("\n");
