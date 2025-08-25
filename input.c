@@ -1,4 +1,5 @@
 #include "input.h"
+#include "builtin.h"
 #include "colors.h"
 #include "terminal.h"
 #include <stdbool.h>
@@ -10,10 +11,6 @@
 const int INITIAL_BUFF_SIZE = 4096;
 const int INITIAL_MAX_ARGS_COUNT = 128;
 const int GROWTH_FACTOR = 2;
-
-bool is_built_in(const char *command) {
-  return strcmp(command, "exit") == 0 || strcmp(command, "cd") == 0;
-}
 
 char *get_user_input() {
   const char *PROMPT = "$ ";
