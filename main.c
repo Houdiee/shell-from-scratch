@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 // TODO
-// 1. add support for all errors
+// 1. add syntax higlighting for executable command
 // 2. add builtin commands, like cd
 // 3. improve the prompt instead of just '$' sign
 

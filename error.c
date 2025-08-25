@@ -10,6 +10,10 @@ void print_error(char *command, char *error_message) {
 
 void exit_on_exec_error(char *command) {
   switch (errno) {
+  case EACCES:
+    print_error(command, strerror(errno));
+    exit(126);
+
   case ENOENT:
     print_error(command, "Command not found");
     exit(127);

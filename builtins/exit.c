@@ -27,5 +27,9 @@ void exit_with_status(char **args) {
     return;
   }
 
+  if (code < 0 || code > 255) {
+    exit(255);
+  }
+
   exit((int)code);
 }
