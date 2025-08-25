@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const int EXIT_MAX_ARGS_LEN = 1;
+const int EXIT_MAX_ARGS_LEN = 2;
 
 void exit_with_status(char **args) {
   char *command = args[0];
@@ -32,7 +32,6 @@ void exit_with_status(char **args) {
   }
 
   int status_code = atoi(status_code_str);
-
   if (status_code < 0 || status_code > 255) {
     exit(255);
   }
