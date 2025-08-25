@@ -1,3 +1,4 @@
+#include "builtins/cd.h"
 #include "builtins/exit.h"
 #include <stdbool.h>
 #include <string.h>
@@ -7,6 +8,11 @@ bool exec_built_in_commands(char **args) {
 
   if (!strcmp(command, "exit")) {
     exit_with_status(args);
+    return true;
+  }
+
+  if (!strcmp(command, "cd")) {
+    change_working_directory(args);
     return true;
   }
 

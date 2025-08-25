@@ -9,11 +9,6 @@ const int EXIT_MAX_ARGS_LEN = 2;
 
 void exit_with_status(char **args) {
   char *command = args[0];
-  int arg_count = 0;
-
-  for (int i = 0; args[i] != NULL; i++) {
-    arg_count++;
-  }
 
   if (args[1] == NULL) {
     exit(EXIT_SUCCESS);
@@ -31,7 +26,7 @@ void exit_with_status(char **args) {
     return;
   }
 
-  int status_code = atoi(status_code_str);
+  const int status_code = atoi(status_code_str);
   if (status_code < 0 || status_code > 255) {
     exit(255);
   }
