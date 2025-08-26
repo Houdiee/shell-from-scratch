@@ -13,7 +13,7 @@
 // TODO
 // 1. add tab completion
 
-int main(int argc, char *argv[]) {
+int main(void) {
   populate_executable_cache();
   while (true) {
     fflush(stdout);
