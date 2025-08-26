@@ -37,6 +37,8 @@ int main(int argc, char *argv[]) {
       }
     }
 
+    printf("\n");
+
     free(args);
     free(user_input);
   }
