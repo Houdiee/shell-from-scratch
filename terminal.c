@@ -1,5 +1,6 @@
 #include "terminal.h"
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -17,4 +18,10 @@ void enable_raw_mode() {
   raw.c_lflag &= ~(ECHO | ICANON);
 
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
+int get_terminal_width() {
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+  return w.ws_col;
 }

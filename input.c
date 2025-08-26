@@ -55,7 +55,8 @@ void handle_highlighting(const char *buffer) {
 
 void print_prompt_and_buffer(const char *prompt, const char *buffer) {
   printf("\r");
-  for (int i = 0; i < 80; i++) {
+  int width = get_terminal_width();
+  for (int i = 0; i < width; i++) {
     printf(" ");
   }
   printf("\r");
