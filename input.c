@@ -94,6 +94,10 @@ char *get_user_input() {
       }
     } else if (ch == EOF || ch == '\n') {
       break;
+    } else if (ch == '	') {
+      printf("TAB");
+      print_prompt_and_buffer(prompt, buffer);
+      continue;
     } else if (ch >= 32 && ch <= 126) {
       if (i >= current_buf_size - 1) {
         current_buf_size *= GROWTH_FACTOR;

@@ -46,3 +46,27 @@ bool is_built_in(const char *command) {
   }
   return false;
 }
+
+char **get_built_in_commands() {
+  int count = 0;
+  for (int i = 0; built_ins[i].name != NULL; i++) {
+    count++;
+  }
+
+  char **commands = malloc(sizeof(char *) * (count + 1));
+  if (commands == NULL) {
+    perror("failed to allocate memory for built-in commands");
+    exit(EXIT_FAILURE);
+  }
+
+  for (int i = 0; built_ins[i].name != NULL; i++) {
+    commands[i] = strdup(built_ins[i].name);
+    if (commands[i] == NULL) {
+      perror("failed to allocate memory for built-in command name");
+      exit(EXIT_FAILURE);
+    }
+  }
+  commands[count] = NULL;
+
+  return commands;
+}
