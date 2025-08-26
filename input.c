@@ -16,13 +16,18 @@ const int INITIAL_MAX_ARGS_COUNT = 128;
 const int GROWTH_FACTOR = 2;
 
 void handle_highlighting(const char *buffer) {
-  char *space = strchr(buffer, ' ');
+  const char *start = buffer;
+  while (*start == ' ') {
+    start++;
+  }
+
+  char *space = strchr(start, ' ');
   int first_word_len;
 
   if (space != NULL) {
-    first_word_len = space - buffer;
+    first_word_len = space - start;
   } else {
-    first_word_len = strlen(buffer);
+    first_word_len = strlen(start);
   }
 
   char *first_word = malloc(first_word_len + 1);
@@ -31,12 +36,16 @@ void handle_highlighting(const char *buffer) {
     return;
   }
 
-  strncpy(first_word, buffer, first_word_len);
+  strncpy(first_word, start, first_word_len);
   first_word[first_word_len] = '\0';
 
   if (is_built_in(first_word) || is_executable_in_path(first_word)) {
-    printf("%s%.*s%s%s", BOLD_GREEN, first_word_len, buffer, RESET,
-           buffer + first_word_len);
+    int leading_spaces = start - buffer;
+    for (int i = 0; i < leading_spaces; i++) {
+      printf(" ");
+    }
+    printf("%s%.*s%s%s", BOLD_GREEN, first_word_len, start, RESET,
+           start + first_word_len);
   } else {
     printf("%s", buffer);
   }
@@ -44,12 +53,22 @@ void handle_highlighting(const char *buffer) {
   free(first_word);
 }
 
+void print_prompt_and_buffer(const char *prompt, const char *buffer) {
+  printf("\r");
+  for (int i = 0; i < 80; i++) {
+    printf(" ");
+  }
+  printf("\r");
+  printf("%s", prompt);
+  handle_highlighting(buffer);
+  fflush(stdout);
+}
+
 char *get_user_input() {
   char *cwd = get_current_directory();
   char prompt[1024];
-  sprintf(prompt, "(%s)> ", basename(cwd));
-  printf("%s", prompt);
-  fflush(stdout);
+  sprintf(prompt, "(%s)> ", cwd);
+  free(cwd);
 
   enable_raw_mode();
 
@@ -62,11 +81,11 @@ char *get_user_input() {
 
   int i = 0;
   buffer[i] = '\0';
-  int prev_buffer_len = 0;
+
+  print_prompt_and_buffer(prompt, buffer);
 
   while (true) {
     int ch = getchar();
-    prev_buffer_len = strlen(buffer);
 
     if (ch == 127 || ch == 8) {
       if (i > 0) {
@@ -89,12 +108,7 @@ char *get_user_input() {
       buffer[i] = '\0';
     }
 
-    for (int k = 0; k < prev_buffer_len; k++) {
-      printf("\b \b");
-    }
-
-    handle_highlighting(buffer);
-    fflush(stdout);
+    print_prompt_and_buffer(prompt, buffer);
   }
   disable_raw_mode();
   printf("\n");

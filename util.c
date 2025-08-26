@@ -17,14 +17,11 @@ const int PATHNAME_MAX_BYTES = 1024;
 
 char *get_current_directory() {
   char full_path[PATHNAME_MAX_BYTES];
-  char *dir_name;
 
   if (getcwd(full_path, sizeof(full_path)) == NULL) {
     perror("getcwd() error");
     exit(EXIT_FAILURE);
   }
 
-  dir_name = basename(full_path);
-
-  return dir_name;
+  return strdup(basename(full_path));
 }
